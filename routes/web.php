@@ -15,6 +15,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+Route::post('auth/login', 'Auth\LoginController@authenticate');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('business/response', 'BusinessController@response');
+ Route::get('business/access_token', 'BusinessController@access_token');
+
+
+
+Route::group(['middleware' => 'auth:web'], function () {
+
+    
+
+});

@@ -26,8 +26,9 @@ trait AuthenticatesUsers
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function login(Request $request)
-    {
+    {  
         $this->validateLogin($request);
+ 
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
@@ -39,7 +40,10 @@ trait AuthenticatesUsers
         }
 
         if ($this->attemptLogin($request)) {
-            return $this->sendLoginResponse($request);
+            $result = $this->sendLoginResponse($request);
+
+            $response = response()->json($result);
+            echo '<pre>first'; print_r($response); exit;
         }
 
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -71,7 +75,7 @@ trait AuthenticatesUsers
      * @return bool
      */
     protected function attemptLogin(Request $request)
-    {
+    { 
         return $this->guard()->attempt(
             $this->credentials($request), $request->has('remember')
         );
@@ -100,8 +104,10 @@ trait AuthenticatesUsers
 
         $this->clearLoginAttempts($request);
 
-        return $this->authenticated($request, $this->guard()->user())
+         $this->authenticated($request, $this->guard()->user())
                 ?: redirect()->intended($this->redirectPath());
+
+
     }
 
     /**
@@ -127,7 +133,9 @@ trait AuthenticatesUsers
         $errors = [$this->username() => trans('auth.failed')];
 
         if ($request->expectsJson()) {
-            return response()->json($errors, 422);
+            $response = response()->json($errors, 422);
+        
+            echo '<pre>first'; print_r($response); exit;
         }
 
         return redirect()->back()
