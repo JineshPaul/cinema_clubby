@@ -9,7 +9,7 @@ class BusinessController extends Controller
 {
    
 
-    public static function response($status = false, $data=[] , $msg =false,$error = [],$header=[]){
+    public static function response($status ='200', $data=[] , $msg ='Success',$error = [],$header=[]){
 
         return response()->json([
             
@@ -24,36 +24,39 @@ class BusinessController extends Controller
     }
 
     public function access_token(){
-
-          
-		        // $params =array(
-		        //     'grant_type' => 'password',
-		        //     'client_id' => env('CLIENT_ID'),
-		        //     'client_secret' => env('CLIENT_SECRET'),
-		        //     'username' =>$username,
-		        //     'password' => $password
-          //           );
-		
        
 
-          $username='paul@gmail.com';
-          $password='123456';
+        $username='paul@gmail.com';
+        $password='123456';
+        $grant_type = 'password';
+        $client_id = env('CLIENT_ID');
+        $client_secret = env('CLIENT_SECRET');
 
+        $base_url = env('BASE_URL');
 
-  $client = new Client();
-    $res = $client->request('POST', 'http://localhost:8000/oauth/token', [
-        'form_params' => [
-            'grant_type' => 'password',
-                    'client_id' => env('CLIENT_ID'),
-                    'client_secret' => env('CLIENT_SECRET'),
-                    'username' =>$username,
-                    'password' => $password,
-        ]
-    ]);
+        $url = $base_url . "/oauth/token" 
 
-    $result= $res->getBody();
-    
+        $http = new Client();
+        
+        $response = $http->post($url, [
+            'form_params' => [
+                'grant_type'=> $grant_type,
+                'client_id'=> $client_id,
+                'client_secret'=> $client_secret,
+                'username'=>$username,
+                'password'=>$password,
+                'scope' => '',
+            ],
+        ]);
+
+        return json_decode((string) $response->getBody(), true);
+
+        // $res = Request::create('http://192.168.56.1/oauth/token', 'POST', ['username' => $username, 'password' => 
+        //     $password,'grant_type' => $grant_type , 'clienT_id' => $client_id , 'client_secret' => $client_secret,'scope' => '']);
+
+        //  print_r($res->getStatusCode());
+        //  exit;
  
-          echo '<pre>'; print_r($result); exit;
+          
     }
 }
