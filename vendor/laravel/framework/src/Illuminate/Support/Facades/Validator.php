@@ -13,7 +13,7 @@ class Validator extends Facade
      * @return string
      */
     protected static function getFacadeAccessor()
-    {  
+    {
         return 'validator';
     }
 }

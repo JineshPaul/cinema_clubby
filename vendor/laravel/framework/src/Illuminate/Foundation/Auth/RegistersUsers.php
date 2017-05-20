@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Input;
 use App\User;
 use App\Http\Controllers\BusinessController;
+use Exception;
 
 trait RegistersUsers
 {
@@ -32,34 +33,54 @@ trait RegistersUsers
      */
     public function register(Request $request)
     {     
-	   //echo '<pre>'; print_r(); exit;
-	   
-	      $data =array('name'=>Input::get('name'),
-		                'email'=>Input::get('email'),
-						'password'=>Input::get('password'),
-						'password_confirmation'=>Input::get('password_confirmation'));
+       //echo '<pre>'; print_r(); exit;
 
+        // Registering the users
+       
+          $data =array('first_name'=>Input::get('first_name'),
+                       'last_name'=>Input::get('last_name'),
+                        'email'=>Input::get('email'),
+                        'password'=>Input::get('password'),
+                        'password_confirmation'=>Input::get('password_confirmation'));
 
-	      $response =   Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-		 
+          // validate User data
+                  $response =   Validator::make($data, [
+                    'first_name' => 'required|string|max:255',
+                    'email' => 'required|string|email|max:255|unique:users',
+                    'password' => 'required|string|min:6|confirmed',
+                ]);
+         
         if($response->fails()){
           $error =  json_encode($response->errors());
-         return BusinessController::response($status = '300' , $data=[] , $msg = 'Failed',$error =$error,$header=[]);
-		 
-		}else{
+                return BusinessController::response($status = '300' , $data=[] , $msg = 'Failed',$error =$error,$header=[]);
+         
+        }else{
 
-		   $data = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+            try{
 
-           return BusinessController::response($status = '200' , $data=$data, $msg = 'Success',$error =[],$header=[]); 	
-		}
+                // Generate Unique Id 
+
+                $unique_id = BusinessController::generate_unique_id($data['first_name'],$data['last_name']);
+                
+                // Insert User data
+
+                 $user = User::create([
+                        'first_name' => $data['first_name'],
+                        'last_name' => $data['last_name'],
+                        'unique_id' => $unique_id,
+                        'email' => $data['email'],
+                        'password' => bcrypt($data['password']),
+
+                 ]);
+
+                return BusinessController::response($status = '200' , $data=$user, $msg = 'Success',$error =[],$header=[]);  
+
+            }
+            catch(Exception $e){
+
+                 return BusinessController::response($status = '300' , $data=[], $msg = 'Failed',$error =$e->getMessage(),$header=[]);
+            }
+        }
       
 
         event(new Registered($user = $this->create($request->all())));
