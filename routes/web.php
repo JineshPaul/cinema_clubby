@@ -17,12 +17,16 @@ Route::get('/', function () {
 
 
 Route::post('auth/login', 'Auth\LoginController@authenticate');
+Route::post('auth/register', 'Auth\RegisterController@register');
+
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-// Route::get('business/response', 'BusinessController@response');
- Route::get('business/access_token', 'BusinessController@access_token');
-
+Route::get('business/access_token', 'BusinessController@access_token');
+Route::get('registration_confirm_mail', 'UserController@registration_confirm_mail');
+Route::get('verify/{code}', array('as' => 'user.email.confirm', 'uses' => 'UserController@email_confirm'));
+Route::get('verified_email/{status}', array('as' => 'user.confirmed', 'uses' => 'UserController@verified_email'));
 
 
 Route::group(['middleware' => 'auth:web'], function () {
